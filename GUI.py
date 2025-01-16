@@ -13,14 +13,20 @@ def paste_from_clipboard(input_box, root):
 
 
 # Function to handle search
-def handle_search(search_type, input_box, lords_name, root):
+def handle_search(search_type, input_box, lords_name, online_search, root):
     user_input = input_box.get()
     include_lords_name = lords_name.get() if lords_name else False  # Get the Checkbutton state if available
+    enable_online_search = online_search.get() if online_search else False
 
     if search_type == 'פסוק':  # חיפוש לפי פסוק
-        result = search_sefaria_export(user_input, include_lords_name)  # Pass the state as a parameter
+
+        result = search_sefaria_export(user_input, include_lords_name, enable_online_search)
+        if result is None:
+            result = " סתם"
     elif search_type == 'מראה מקום':  # חיפוש לפי מראה מקום
-        result = find_by_loc(user_input)  # No lords_name parameter for this option
+        result = find_by_loc(user_input, enable_online_search)
+        if result is None:
+            result = " סתם"
     else:
         result = "לא הוגדר"
 
@@ -89,15 +95,23 @@ def show_text_input(search_type, root):
     paste_button.pack(pady=5)
 
     lords_name = None
+    online_search = None
+
     if search_type == 'פסוק':
         # Checkbutton tied to `lords_name`
         lords_name = tk.BooleanVar(value=False)  # Variable to track the state
         check_button = tk.Checkbutton(root, text="שם השם חסר", font=("Open Sans", 14),
                                       variable=lords_name, onvalue=True, offvalue=False)
-        check_button.pack(pady=5, side = tk.BOTTOM)
+        check_button.pack(pady=5)
+
+    # Checkbutton for online search
+    online_search = tk.BooleanVar(value=False)
+    online_check_button = tk.Checkbutton(root, text="חיפוש אונליין", font=("Open Sans", 14),
+                                         variable=online_search, onvalue=True, offvalue=False)
+    online_check_button.pack(pady=5)
 
     search_button = tk.Button(root, text="חיפוש", font=("Open Sans", 14), bg="#e6ebe9", fg="black",
-                              command=lambda: handle_search(search_type, input_box, lords_name, root))
+                              command=lambda: handle_search(search_type, input_box, lords_name, online_search, root))
     search_button.pack(pady=10)
 
     # Back button to return to the main menu

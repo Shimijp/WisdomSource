@@ -32,8 +32,15 @@ def remove_diacritics(text):
     )
     return unicodedata.normalize('NFC', filtered)
 
+def covert_the_name_of_the_lord(name):
+        if 'ה\'' in name:
+            return name.replace('ה\'', 'יהוה')
+        if ' ה ' in name:
+            return name.replace(' ה ', ' יהוה ')
+        return name
 
-def find_by_loc(  loc):
+
+def find_by_loc(  loc, online_search):
     new_loc = loc.split(' ')
     if len(new_loc) <  3:
         return "מראה מקום לא תקין "
@@ -47,8 +54,7 @@ def find_by_loc(  loc):
         book = book +' '+ num_book
         chapter = new_loc[2]
         verse = new_loc[3]
-    else:
-        return "פורמט חיפוש שגוי"
+
     path = 'Sefaria-Export'
     chapter_num = str((hebrew_to_number(chapter)-1))
     verse_num = str((hebrew_to_number(verse)-1))
@@ -69,17 +75,15 @@ def find_by_loc(  loc):
 
                             return result
                         except KeyError:
-                            return "Chapter or verse not found."
+                            if online_search:
+                                return find_by_place(get_english_loc(loc))
+                            return f"לא נמצא:{loc}"
+
+
 
 
                 except Exception as e:
                     print(f"Error reading file '{file_path}': {e}")
-
-def covert_the_name_of_the_lord(name):
-
-        if 'ה\'' in name:
-            return name.replace('ה\'', 'יהוה')
-        return name
 
 
 
@@ -111,7 +115,7 @@ def clean_text(text,  full_lord_name, unify_final_letters=True ):
 # 2) Main Search Function
 ########################################
 
-def search_sefaria_export(hebrew_text, full_lord_name,
+def search_sefaria_export(hebrew_text, full_lord_name, online_search,
                           base_path="Sefaria-Export",
                           partial_match=True):
 
@@ -202,8 +206,11 @@ def search_sefaria_export(hebrew_text, full_lord_name,
     if matches:
         return (get_book_in_hebrew(matches[0]['file']) +" " + number_to_hebrew(matches[0]['chapter'])+" " +
                 number_to_hebrew(matches[0]['verse'])+ "\n "+ matches[0]['excerpt'])
+    elif online_search:
+        return find_verse_location(hebrew_text)
     else:
-        return ["No matches found."]
+        return f"לא נמצאו תוצאות מתאימות עבור: {hebrew_text}"
+
 
 
 ########################################
@@ -212,7 +219,7 @@ def search_sefaria_export(hebrew_text, full_lord_name,
 
 def main():
     # 1) Provide the Hebrew text snippet you want to search
-    hebrew_text = "וַיְסַפֵּ֤ר מֹשֶׁה֙ לְחֹ֣תְנ֔וֹ אֵת֩ כׇּל־אֲשֶׁ֨ר עָשָׂ֤ה ה' לְפַרְעֹ֣ה וּלְמִצְרַ֔יִם עַ֖ל אוֹדֹ֣ת יִשְׂרָאֵ֑ל אֵ֤ת כׇּל הַתְּלָאָה֙ אֲשֶׁ֣ר מְצָאָ֣תַם בַּדֶּ֔רֶךְ וַיַּצִּלֵ֖ם ה' "
+    hebrew_text = "לפי שאין בקיאין לשמה רבא אמר אלפי שאין עדים מצויין לקיימו "
 
     # 2) Provide the path to the directory containing your JSON files
     #    e.g., "Sefaria-Export" or "/path/to/my/sefaria"
@@ -222,7 +229,7 @@ def main():
     partial_match = True
 
     # 4) Perform the search
-    results = search_sefaria_export(hebrew_text, True, partial_match=partial_match)
+    results = search_sefaria_export(hebrew_text, True, partial_match=partial_match, online_search= True)
 
     # 5) Print the results
     if isinstance(results, list):
@@ -240,7 +247,8 @@ def main():
         # In case something unusual is returned
         print(results)
 
-
+    attampt = find_by_place('')
+    print(attampt)
 ########################################
 # 4) Actually run main() if executed directly
 ########################################

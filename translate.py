@@ -1,3 +1,4 @@
+from sources import *
 hebrew_numerals = {
     1: "א", 2: "ב", 3: "ג", 4: "ד", 5: "ה",
     6: "ו", 7: "ז", 8: "ח", 9: "ט",
@@ -22,7 +23,7 @@ def hebrew_to_number(hebrew_str):
         if letter in gematria_map:
             total += gematria_map[letter]
         else:
-            raise ValueError(f"Invalid Hebrew letter: {letter}")
+            return ValueError(f"Invalid Hebrew letter: {letter}")
 
     return total
 
@@ -53,60 +54,34 @@ def number_to_hebrew(num):
 
     return result
 
+def get_english_loc(loc):
+    book = ""
+    chapter = ""
+    verse =""
+    new_loc = loc.split(' ')
+    if len(new_loc) <  3:
+        return "מראה מקום לא תקין "
+    if len(new_loc) == 3:
+        book = new_loc[0]
+        chapter = new_loc[1]
+        verse = new_loc[2]
+    if len(new_loc) == 4:
+        book = new_loc[0]
+        num_book = new_loc[1]
+        book = book +' '+ num_book
+        chapter = new_loc[2]
+        verse = new_loc[3]
+    return  [hebrew_to_english_mapping.get(book, book), hebrew_to_number(chapter),
+             hebrew_to_number(verse)]
 
-book_name_mapping = {
-    # Torah
-    "Genesis": "בראשית",
-    "Exodus": "שמות",
-    "Leviticus": "ויקרא",
-    "Numbers": "במדבר",
-    "Deuteronomy": "דברים",
 
-    # Nevi'im
-    "Joshua": "יהושע",
-    "Judges": "שופטים",
-    "I Samuel": "שמואל א",
-    "II Samuel": "שמואל ב",
-    "I Kings": "מלכים א",
-    "II Kings": "מלכים ב",
-    "Isaiah": "ישעיהו",
-    "Jeremiah": "ירמיהו",
-    "Ezekiel": "יחזקאל",
-    "Hosea": "הושע",
-    "Joel": "יואל",
-    "Amos": "עמוס",
-    "Obadiah": "עובדיה",
-    "Jonah": "יונה",
-    "Micah": "מיכה",
-    "Nahum": "נחום",
-    "Habakkuk": "חבקוק",
-    "Zephaniah": "צפניה",
-    "Haggai": "חגי",
-    "Zechariah": "זכריה",
-    "Malachi": "מלאכי",
-
-    # Ketuvim
-    "Psalms": "תהילים",
-    "Proverbs": "משלי",
-    "Job": "איוב",
-    "Song_of_Songs": "שיר השירים",
-    "Ruth": "רות",
-    "Lamentations": "איכה",
-    "Ecclesiastes": "קהלת",
-    "Esther": "אסתר",
-    "Daniel": "דניאל",
-    "Ezra": "עזרא",
-    "Nehemiah": "נחמיה",
-    "I Chronicles": "דברי הימים א",
-    "II Chronicles": "דברי הימים ב"
-}
-hebrew_to_english_mapping = {value: key for key, value in book_name_mapping.items()}
 def get_book_in_english(book):
-    return hebrew_to_english_mapping[book]
+
+    return hebrew_to_english_mapping.get(book, book)
 
 
 def get_book_in_hebrew(book):
-    return book_name_mapping[book]
+    return book_name_mapping.get(book, book)
 
 def convert_to_hebrew_source(english_reference):
     try:
